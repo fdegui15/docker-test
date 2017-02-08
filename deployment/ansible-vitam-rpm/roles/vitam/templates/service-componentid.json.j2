@@ -1,0 +1,25 @@
+{
+  "service": {
+    "name": "{{ vitam_component }}",
+{% if tls_active==true %}
+    "port": {{ port_https }},
+{% else %}
+    "port": {{ port_http }},
+{% endif %}
+    "enableTagOverride": false,
+    "checks": [
+      {
+{% if tls_active==true %}
+        "id": "https tcp check",
+        "notes": "HTTPS port opened",
+        "tcp": "localhost:{{ port_https }}",
+{% else %}
+        "id": "admin status",
+        "notes": "Status admin : /admin/v1/status",
+        "http": "http://localhost:{{ port_http }}/admin/v1/status",
+{% endif %}
+        "interval": "1s"
+      }
+    ]
+  }
+}

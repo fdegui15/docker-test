@@ -1,0 +1,5 @@
+---
+- name: reload apache httpd
+  service:
+    name: "httpd"
+    state: reloaded

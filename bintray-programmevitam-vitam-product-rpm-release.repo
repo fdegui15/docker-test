@@ -1,0 +1,7 @@
+#bintray--programmevitam-vitam-rpm-release - packages by  from Bintray
+[bintray--programmevitam-vitam-product-rpm-release]
+name=bintray--0.11
+baseurl=http://dl.bintray.com/programmevitam/vitam-rpm-release/centos/7/vitam-product/0.11.x
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1

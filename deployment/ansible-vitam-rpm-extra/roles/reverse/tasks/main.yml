@@ -1,0 +1,59 @@
+---
+# Ensure apache httpd is installed
+- name: install httpd
+  yum:
+    name: httpd
+    state: latest
+
+- name: create DocumentRoot directory
+  file:
+    path: /var/www/html-local
+    state: directory
+    owner: root
+    mode: 0755
+  notify:
+     - reload apache httpd
+
+# FIXME - which group do we have to set ?
+- name: create logs-nightly-builds subdirectory
+  file:
+    path: /var/www/html-local/logs-nightly-deploy
+    state: directory
+    owner: root
+    group: "{{ansible_user_id}}"
+    mode: 0775
+
+- name: copy index resources
+  copy:
+    src: "{{item}}"
+    dest: /var/www/html-local/
+    owner: root
+    mode: 0644
+  with_items:
+      - css
+      - images
+      - js
+  notify:
+     - reload apache httpd
+
+- name: copy index default page
+  template:
+    src: index.html.j2
+    dest: /var/www/html-local/index.html
+    owner: root
+    mode: 0644
+  tags:
+    - update_package_vitam
+  notify:
+     - reload apache httpd
+
+- name: copy httpd configuration template
+  template:
+    src: httpd_config
+    dest: /etc/httpd/conf.d/zz_local.conf
+    owner: root
+    mode: 0644
+  tags:
+    - update_package_vitam
+  notify:
+     - reload apache httpd

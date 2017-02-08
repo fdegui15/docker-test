@@ -30,11 +30,7 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
     rm -f /lib/systemd/system/basic.target.wants/*;\
     rm -f /lib/systemd/system/anaconda.target.wants/*;
 
-################################  Install build tools (rpm / maven / java)  ###############################
-
-# TO DO : try to remove npm, golang, java-1.8.0 !
-# What is it ? initscripts, cronie 
-# Merge with the yum install (up and down) !
+################################  Install build tools (rpm / maven / java / ansible)  ###############################
 
 RUN yum install -y \
     	java-1.8.0-openjdk-devel \
@@ -56,10 +52,6 @@ ENV PATH ${JAVA_HOME}/bin:${PATH}
 RUN mkdir -p /devhome \
     && chmod -R 777 /devhome
 
-################################  Install ansible  ###############################
-
-# for sudo in automatic deployment ; note : ansible needs epel repo
-#RUN yum install -y 
 
 
 ################################## Add dev helpers #################################
@@ -68,7 +60,7 @@ COPY vitam-build-repo /usr/bin
 COPY vitam-deploy /usr/bin
 COPY vitam-deploy-all /usr/bin
 COPY vitam-deploy-extra /usr/bin
-COPY vitam-maven-build-only /usr/bin
+#COPY vitam-maven-build-only /usr/bin
 COPY vitam-redeploy /usr/bin
 COPY vitam-redeploy-extra /usr/bin
 COPY vitam-command /usr/bin
@@ -81,22 +73,19 @@ COPY vitam-usage.txt /etc
 COPY wheel-nopwd /etc/sudoers.d
 
 
-
-ENV TERM xterm
-
-
 ##################################  DEMO ANSIBLE CONFIG  ###############################
+
+# copy the repository Vitam
 COPY bintray* /devhome/
 RUN sudo cp /devhome/bin* /etc/yum.repos.d
 
-# COPY vitam-mongoclient-1.4.0-2.el7.centos.x86_64.rpm /devhome/
-# RUN sudo yum install -y /devhome/vitam-mongoclient-1.4.0-2.el7.centos.x86_64.rpm 
-
+# copy the directory 'deployment' from github.com/ProgrammeVitam
 # RUN cd /devhome \
 #    && git clone https://github.com/ProgrammeVitam/vitam.git 
-COPY deployment /devhome/deployment
-# COPY dev-deployment /devhome/dev-deployment
 
+COPY deployment /devhome/deployment
+
+# modify the normalize-hosts to use 'bintray' repository instead of 'local'
 # Remove yum --enablerepo='local' in ansible-vitam-rpm
 COPY ansible--normalize-host-main.yml /devhome/deployment/ansible-vitam-rpm/roles/normalize-host/tasks/main.yml
 
@@ -111,8 +100,10 @@ COPY fastestmirror.conf /etc/yum/pluginconf.dll
 
 ##################################  CONTAINER SETTINGS  #################################
 
+# Volume sys/fs/cgroup mandatory for systemd
 VOLUME [ "/sys/fs/cgroup" ]
-#VOLUME [ "/code" ]
+
+EXPOSE 80
 
 WORKDIR /devhome
 

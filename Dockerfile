@@ -49,9 +49,7 @@ ENV JAVA_HOME /usr/lib/jvm/java
 
 ENV PATH ${JAVA_HOME}/bin:${PATH}
 
-RUN mkdir -p /devhome \
-    && chmod -R 777 /devhome
-
+RUN mkdir  /devhome 
 
 
 ################################## Add dev helpers #################################
@@ -88,9 +86,6 @@ COPY deployment /devhome/deployment
 # modify the normalize-hosts to use 'bintray' repository instead of 'local'
 # Remove yum --enablerepo='local' in ansible-vitam-rpm
 COPY ansible--normalize-host-main.yml /devhome/deployment/ansible-vitam-rpm/roles/normalize-host/tasks/main.yml
-
-# Copy the demo_beta directory
-COPY demo-beta /devhome/demo-beta
 
 #RUN chmod -R 766 /devhome
 
